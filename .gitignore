@@ -1,0 +1,16 @@
+# Keep the externally sourced incident-level data local; it is not included here.
+/train.csv
+
+# Local Python/Jupyter environment files.
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.ipynb_checkpoints/
+
+# Notebook-generated figures (not source assets).
+/top_crimes.png
+/crimes_by_district.png
+/crimes_by_hour.png
+/Correlation Heatmap.png
+/hierarchical_dendrogram_cut.png

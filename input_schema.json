@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "format": "CSV",
+  "title": "Minimum input schema for MINING_5_Final.ipynb",
+  "description": "The notebook uses these six fields only. Additional source columns are ignored and not loaded.",
+  "required_columns": [
+    "Dates",
+    "Category",
+    "DayOfWeek",
+    "PdDistrict",
+    "X",
+    "Y"
+  ],
+  "columns": {
+    "Dates": {
+      "accepted_values": "non-null values parseable by pandas as dates or timestamps",
+      "nullable": false,
+      "use": "time-derived analysis features"
+    },
+    "Category": {
+      "accepted_values": "non-null category labels",
+      "nullable": false,
+      "use": "descriptive summaries and sampling strata; excluded from clustering features"
+    },
+    "DayOfWeek": {
+      "accepted_values": "non-null day labels",
+      "nullable": false,
+      "use": "encoded preprocessing field"
+    },
+    "PdDistrict": {
+      "accepted_values": "non-null district labels",
+      "nullable": false,
+      "use": "encoded modeling feature and aggregated summaries"
+    },
+    "X": {
+      "accepted_values": "non-null numeric values",
+      "nullable": false,
+      "use": "spatial feature"
+    },
+    "Y": {
+      "accepted_values": "non-null numeric values",
+      "nullable": false,
+      "use": "spatial feature"
+    }
+  },
+  "additional_columns": "allowed in the source CSV but not loaded by the notebook",
+  "data_included": false
+}

@@ -1,0 +1,26 @@
+name: Notebook checks
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+      - name: Install pinned notebook dependencies
+        run: python -m pip install -r requirements.txt
+      - name: Verify runtime imports
+        run: >-
+          python -c "import matplotlib, numpy, pandas, scipy, seaborn, sklearn;
+          from sklearn_extra.cluster import KMedoids"
+      - name: Run offline repository checks
+        run: python -m unittest discover -s tests -v
