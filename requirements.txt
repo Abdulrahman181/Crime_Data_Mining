@@ -1,0 +1,10 @@
+# Direct dependencies used by MINING_5_Final.ipynb; Python 3.11.
+# These are not a transitive lockfile and do not prove the data-dependent notebook runs.
+jupyterlab==4.2.5
+matplotlib==3.9.2
+numpy==1.26.4
+pandas==2.2.3
+scikit-learn==1.5.2
+scikit-learn-extra==0.3.0
+scipy==1.14.1
+seaborn==0.13.2

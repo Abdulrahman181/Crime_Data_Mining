@@ -7,27 +7,40 @@ This repository contains a Jupyter notebook for exploratory analysis of crime-re
 ## Contents
 
 - `MINING_5_Final.ipynb` — analysis and modeling notebook.
-- `Project Report_ Crime Rate Prediction - Lark Docs.pdf` — project report. Numeric student identifiers have been redacted from the current copy; confirm permission from the named contributors before republishing it.
+- `Project Report_ Crime Rate Prediction - Lark Docs.pdf` — historical project report. Numeric student identifiers have been redacted from the current copy; contributor publication permission has not been verified. Its prediction, metric, and dashboard statements have not been independently reproduced; see the limitations below.
+- `input_schema.json` — minimum required CSV columns and accepted value types; extra source columns are not loaded.
+- `requirements.txt` — pinned direct notebook dependencies for Python 3.11 (not a full transitive lockfile).
+- `tests/test_notebook.py` — offline checks that do not need the incident dataset.
 
 ## Dataset and setup
 
-The notebook reads `train.csv` from its current working directory. **That file is not included in this repository.** The Kaggle URL below is an external reference page, not a dataset download script. Obtain the data only if you have access and permission to use it, confirm the applicable terms, and place an authorized copy named `train.csv` beside the notebook before running it. No dataset, data license, or checked-in downloader is provided here.
+The notebook requires a locally obtained, authorized CSV with `Dates`, `Category`, `DayOfWeek`, `PdDistrict`, `X`, and `Y` columns. **No dataset is included.** It reads only those fields, validates missing/invalid required values, and does not load other columns such as address or incident-description fields. By default it looks for `train.csv` in the current working directory; set `CRIME_DATA_PATH` to use another local file. The Kaggle URL below is an external reference page, not a dataset download script. Obtain data only if you have permission, confirm applicable terms, and keep it local. No dataset license or downloader is provided here.
 
-The notebook imports Jupyter/IPython, pandas, NumPy, Matplotlib, Seaborn, SciPy, scikit-learn, and `scikit-learn-extra`. Dependency versions and a tested Python version are not recorded or pinned, so environment compatibility is not guaranteed. The notebook has not been rerun from a clean environment as part of this maintenance change.
+Use Python 3.11 and install the pinned direct dependencies from the repository root. The requirements file is not a full transitive lockfile. CI checks dependency imports and static notebook behavior, but does not run the data-dependent analysis because the authorized CSV is absent. No full notebook execution or model result is claimed.
 
 ## Run the notebook
 
-1. Prepare an authorized `train.csv` in the project directory.
-2. Create a Python environment with Jupyter and the libraries listed above.
-3. Open `MINING_5_Final.ipynb` from the project directory and run the cells in order.
+1. Obtain an authorized CSV matching the required columns above; do not commit it.
+2. From the repository root, create and activate a Python 3.11 environment, then install dependencies:
+   ```sh
+   python3.11 -m venv .venv
+   . .venv/bin/activate
+   python -m pip install -r requirements.txt
+   ```
+3. If the CSV is not named `train.csv` in the repository root, set its path before opening the notebook, for example `export CRIME_DATA_PATH=/path/to/authorized.csv`.
+4. Run `jupyter lab MINING_5_Final.ipynb` from the repository root and execute cells in order.
 
-The hierarchical-clustering steps can be computationally and memory intensive. Outputs from the previous classifier split were cleared after correcting the split; the notebook was not executed because its required data is absent. Any remaining saved notebook outputs are historical and have not been independently reproduced.
+The notebook checks for the file and required columns, rejects missing/invalid required values, and reads only the six fields it uses. The hierarchical-clustering steps can be computationally and memory intensive. All saved notebook outputs and execution counts have been cleared to avoid publishing stale metrics or incident-level previews; rerunning locally will regenerate outputs. CI intentionally fails if notebook outputs are committed.
 
 ## Evaluation and interpretation limits
 
-The clustering step runs before the train/validation/test split and creates the labels later used as classifier targets. The corrected random split allocates 60%/20%/20% of rows, but the held-out labels still come from clustering fitted on the full sample. Thus the classification task is only an approximation of generated cluster labels—not an independent evaluation on new crime data. The split is also not time- or location-held-out. Do not interpret saved metrics as forecasting accuracy or use the output to rank neighborhoods, assess individuals, or guide law-enforcement decisions.
+Preprocessing (including outlier filtering, category encoding, and scaling) and K-Medoids clustering occur before the train/validation/test split. K-Medoids creates the classifier target using the same full analysis sample from which the stratified 60%/20%/20% row split is drawn. Consequently, held-out labels are not independent and this is **not a leakage-free test of generalization**, even though the split partitions do not overlap. The classifiers imitate generated cluster labels; they do not forecast an observed crime category, incident, count, or rate. The split is not time- or location-held-out. Both classifiers are evaluated on the same test partition, so it must not be reused to select or tune a model. No metric is independently reproduced in this maintenance change.
 
-Reported incidents reflect reporting and recording practices and are not a complete measure of crime. Consider bias, privacy, source terms, and geographic aggregation before any external use. The dataset is not included here, so its specific fields and release permissions could not be reviewed in this repository.
+Reported incidents reflect reporting and recording practices and are not a complete measure of crime. Consider bias, privacy, source terms, and geographic aggregation before any external use. The dataset is absent, so its terms, field semantics, and release permissions could not be reviewed. Do not interpret the output as a complete measure of crime, rank neighborhoods, assess individuals, or guide law-enforcement decisions.
+
+## Privacy and sharing
+
+Only six fields required by the notebook are loaded; fields such as addresses and incident descriptions are excluded. The retained date/time and `X`/`Y` values can still be sensitive or identifying in combination. Keep source data outside version control, review any locally regenerated chart or notebook output before sharing, and do not commit raw rows or small-area breakdowns. The notebook has no inference/deployment interface and no model artifact is published; creating one would require a separately designed, leakage-safe workflow and independent review.
 
 ## External links (not verified or reproducible here)
 
