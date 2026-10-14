@@ -1,0 +1,10 @@
+[tool.ruff]
+line-length = 120
+exclude = ["Project Report_ Crime Rate Prediction - Lark Docs.pdf"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

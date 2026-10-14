@@ -1,40 +1,52 @@
-# Crime_Data_Mining
+# Crime Data Mining
 
-A data mining and machine learning project that analyzes real-world crime data to uncover hidden patterns and make predictions. The project applies both **unsupervised learning** techniques—such as **K-Medoids** and **Hierarchical Clustering**—and **supervised learning** models including **Decision Tree** and **Random Forest** classifiers to predict crime categories and identify key influencing features.
+A reproducible analysis of the San Francisco crime dataset using descriptive analysis, K-Medoids and hierarchical clustering, and supervised models that reproduce K-Medoids pseudo-labels. The maintained executable artifact is [`MINING_5_Final.ipynb`](MINING_5_Final.ipynb).
 
-The results are visualized and deployed through an interactive **Streamlit** dashboard for easy exploration and interpretation.
+## Data
 
----
+The repository intentionally does **not** include the large source dataset or generated artifacts. Obtain the SF Crime dataset from the [Kaggle SF Crime Rate Prediction page](https://www.kaggle.com/code/junheo/sf-crime-rate-prediction), then save the CSV as `train.csv` at the repository root or under `data/train.csv`. Alternatively set `CRIME_DATA_PATH` to an explicit local CSV path.
 
-## Dataset
+The loader requires these columns:
 
-The dataset used in this project is available on Kaggle:  
-[SF Crime Rate Prediction Dataset](https://www.kaggle.com/code/junheo/sf-crime-rate-prediction)
+`Dates`, `Category`, `Descript`, `DayOfWeek`, `PdDistrict`, `Resolution`, `Address`, `X`, `Y`.
 
----
+No data is downloaded, synthesized, or fabricated by the notebook. If the file is missing, the first loading cell stops with an actionable `FileNotFoundError`.
 
-## Live App
+## Setup
 
-Explore the results in the deployed Streamlit app:  
-[Streamlit Dashboard](https://blank-app-q6vuw44zxl.streamlit.app/)
+```bash
+python -m venv .venv
+. .venv/bin/activate
+python -m pip install -r requirements.txt
+```
 
----
+For notebook execution:
 
-## Project Goals
+```bash
+jupyter notebook MINING_5_Final.ipynb
+# or: CRIME_DATA_PATH=/absolute/path/train.csv jupyter nbconvert --to notebook --execute MINING_5_Final.ipynb --output executed.ipynb
+```
 
-- Analyze crime data to uncover temporal and spatial patterns.
-- Use unsupervised learning to identify clusters in crime behavior.
-- Build supervised learning models to predict crime categories based on input features.
-- Provide a user-friendly interactive dashboard for visualization and interpretation.
+Generated plots go to `artifacts/` by default. Override that directory with `CRIME_ARTIFACT_DIR`.
 
----
+## Methodology and safeguards
 
-## Technologies Used
+- Exact duplicates and invalid dates/coordinates are removed; no synthetic or silent imputation is performed.
+- Modeling uses only date-derived fields, coordinates, and one-hot police-district features. `Category`, `Descript`, `Resolution`, and `Address` are excluded from model inputs.
+- A deterministic sample (maximum 5,000 rows, seed `42`) bounds clustering cost.
+- The train/validation/test split is 60/20/20. The feature preprocessor is fit on training rows only, then applied to validation and test rows.
+- K is selected using training-only silhouette scores. Clustering diagnostics are reported on training rows.
+- Decision Tree and Random Forest results predict K-Medoids cluster pseudo-labels; they are **not** crime-category prediction, causal inference, or forecasts of future incidents. Report accuracy alongside balanced accuracy and macro F1 because cluster sizes may be uneven.
 
-- Python 3  
-- Pandas, NumPy  
-- Scikit-learn  
-- Matplotlib, Seaborn  
-- Streamlit  
-- K-Medoids, Hierarchical Clustering  
-- Decision Tree, Random Forest
+## Validation and development checks
+
+```bash
+ruff check .
+pytest -q
+```
+
+The tests are static safeguards for notebook syntax, clean outputs, required data guards, and the documented split/feature constraints. A complete model run requires the real dataset and installed optional scientific dependencies; no metrics are claimed in this repository without those inputs.
+
+## Repository scope
+
+The historical project report and README referenced a Streamlit dashboard, but no Streamlit source exists in this repository. This audit does not invent or claim a dashboard implementation; the notebook is the maintained analysis entry point.

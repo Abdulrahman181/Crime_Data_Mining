@@ -1,0 +1,25 @@
+# Local data and generated outputs
+train.csv
+data/*.csv
+data/*.zip
+artifacts/
+*.png
+*.jpg
+*.jpeg
+*.parquet
+*.pkl
+*.joblib
+
+# Python environments and caches
+.venv/
+venv/
+env/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# Local tooling and OS files
+.env
+.DS_Store
