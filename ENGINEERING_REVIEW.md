@@ -59,6 +59,38 @@ The following checks passed after the repairs:
 - The historical PDF report was retained as supplied and is not treated as current experimental evidence. Its old metrics/claims were not copied into the repaired README or notebook.
 - No Streamlit application was invented because no source or deployable app exists in this repository.
 
+## Second Senior Review — 2026-10-15
+
+### Scope and findings
+
+The second review re-checked every tracked file, all 17 notebook cells, the prior audit commit (`2a2728f`), Git history, dependency declarations, and the existing tests. The first repair was materially sound, but the following residual issues were found:
+
+- A missing explicit `CRIME_DATA_PATH` or `load_dataset` path could silently fall back to a different local CSV, which is unsafe for reproducibility.
+- `pd.to_datetime` could leave mixed-timezone input as an object dtype and then fail at `.dt` feature extraction; blank model-critical categorical values were also accepted.
+- Very small datasets reached a less actionable split/clustering failure, and a training set containing fewer than two distinct feature rows could make silhouette/K-Medoids invalid.
+- The confusion-matrix cell omitted labels that appeared only in predictions, so counts could be silently dropped from the displayed matrix.
+- The dependency range allowed NumPy 2 and newer scikit-learn versions that are not a safe compatibility target for the unmaintained `scikit-learn-extra==0.3.0` package.
+- Plot figures were left open after saving, which is avoidable state/memory accumulation during repeated notebook execution.
+
+No API/UI implementation, model serialization, credentials, unsafe deserialization, or fabricated data/metrics were found. The historical PDF remains non-executable legacy evidence; the repository still has no Streamlit source.
+
+### Repairs made
+
+- Made an explicit data path authoritative: a missing configured path now raises `FileNotFoundError` instead of falling back; documented fallback search remains available only when no path is configured.
+- Parsed dates with `utc=True`, rejected blank `Category`, `DayOfWeek`, and `PdDistrict` values, and retained the existing no-imputation/finite-coordinate safeguards.
+- Added a minimum-five-row guard for the 60/20/20 split and a distinct-feature-row guard plus bounded K selection for clustering.
+- Included the union of true and predicted labels in the test confusion matrix and close saved Matplotlib figures after display.
+- Constrained requirements to `numpy<2`, `scikit-learn>=1.3,<1.6`, and `scikit-learn-extra==0.3.0` to make the declared legacy K-Medoids stack explicit.
+- Added executable loader tests for strict path precedence, mixed-timezone parsing, and blank-row rejection; updated README behavior and limitations.
+
+### Second-review validation
+
+- `ruff check .` — passed.
+- `pytest -q` — passed (7 tests).
+- `python -m compileall -q .` — passed for Python sources/tests.
+- Notebook JSON/AST/output audit — passed: all code cells parse, have empty outputs, and have null execution counts.
+- Full end-to-end modeling — **not run**: no real `train.csv` is present and `scikit-learn-extra`/`nbformat` are not installed in the current sandbox. A Python 3.12 isolated install also attempted a source build for `scikit-learn-extra==0.3.0` and lacked Python headers; Python 3.9–3.11 is documented as the supported setup. No performance metrics are claimed.
+
 ## Local commit
 
-A local-only commit is created after this review. No push or remote mutation is performed.
+A local-only commit is created after this second review. No push or remote mutation is performed.

@@ -10,7 +10,7 @@ The loader requires these columns:
 
 `Dates`, `Category`, `Descript`, `DayOfWeek`, `PdDistrict`, `Resolution`, `Address`, `X`, `Y`.
 
-No data is downloaded, synthesized, or fabricated by the notebook. If the file is missing, the first loading cell stops with an actionable `FileNotFoundError`.
+No data is downloaded, synthesized, or fabricated by the notebook. If `CRIME_DATA_PATH` (or the optional `load_dataset` argument) is set but does not point to a file, the first loading cell stops rather than silently falling back to another path. If no path is configured, the notebook searches the current working directory and its `data/` subdirectory, then raises an actionable `FileNotFoundError`.
 
 ## Setup
 
@@ -19,6 +19,8 @@ python -m venv .venv
 . .venv/bin/activate
 python -m pip install -r requirements.txt
 ```
+
+Use Python 3.9–3.11 for the complete workflow. `scikit-learn-extra==0.3.0` is an old package and may require a local build on Python 3.12+; the notebook reports a clear install error if K-Medoids is unavailable.
 
 For notebook execution:
 
@@ -34,6 +36,7 @@ Generated plots go to `artifacts/` by default. Override that directory with `CRI
 - Exact duplicates and invalid dates/coordinates are removed; no synthetic or silent imputation is performed.
 - Modeling uses only date-derived fields, coordinates, and one-hot police-district features. `Category`, `Descript`, `Resolution`, and `Address` are excluded from model inputs.
 - A deterministic sample (maximum 5,000 rows, seed `42`) bounds clustering cost.
+- At least five valid rows are required for the documented 60/20/20 split; at least two distinct training feature rows are required for clustering.
 - The train/validation/test split is 60/20/20. The feature preprocessor is fit on training rows only, then applied to validation and test rows.
 - K is selected using training-only silhouette scores. Clustering diagnostics are reported on training rows.
 - Decision Tree and Random Forest results predict K-Medoids cluster pseudo-labels; they are **not** crime-category prediction, causal inference, or forecasts of future incidents. Report accuracy alongside balanced accuracy and macro F1 because cluster sizes may be uneven.
@@ -45,7 +48,7 @@ ruff check .
 pytest -q
 ```
 
-The tests are static safeguards for notebook syntax, clean outputs, required data guards, and the documented split/feature constraints. A complete model run requires the real dataset and installed optional scientific dependencies; no metrics are claimed in this repository without those inputs.
+The tests cover notebook syntax/state, loader validation/path precedence, required data guards, and the documented split/feature constraints. A complete model run requires the real dataset and installed optional scientific dependencies; no metrics are claimed in this repository without those inputs.
 
 ## Repository scope
 
